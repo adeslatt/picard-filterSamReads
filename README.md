@@ -24,4 +24,23 @@ We develop and install our workflow using nextflow -- we need to install it :)
 conda install -c bioconda nextflow
 ```
 
+## manage your GitHub
+
+Keep track of everything on GitHub - final workflow will be `main.nf` with configuration in `nextflow.config`.
+
+Need to use the command line interface routine `gh`.
+
+```bash
+conda install -c conda-forge gh
+```
+
+Need to use your [GitHub token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token) to authenticate.
+
+```bash
+gh auth login
+```
+
+
+
+
 
