@@ -1,12 +1,15 @@
 //main.nf
 
-params.cram               = "/sbgenomics/project-files/HTP_CRAMs/HTP0003A.cram"
+params.input              = "/sbgenomics/project-files/HTP_CRAMs/*.cram"
+params.interval_list      = "/sbgenomics/project-files/test2.interval_list"
 params.reference_sequence = "/sbgenomics/project-files/References/Homo_sapiens_assembly38.fasta"
-params.filtered_cram      = make it a filtered_cram
+params.max_records_in_ram = 10000000
 
-cram_ch = Channel.fromFilePairs(params.cram)
+cram_datasets = Channel.fromPath(params.input)
 
+interval_list      = file(params.interval_list)
 reference_sequence = file(params.reference_sequence)
+max_records_in_ram = val(params.max_records_in_ram)
 
 process picardFilterSamReads {
 
@@ -15,23 +18,19 @@ process picardFilterSamReads {
     container 'pgc-images.sbgenomics.com/deslattesmaysa2/picard:v1.0'
 
     input:
-    file cram from cram_ch
+    file cram from cram_datasets
     
-    
-    set val(name), file(crams) from crams
-
     output:
-    file "*.cram" into cram_results
+    file "${cram.baseName)_filtered" into cram_filtered
 
     script:
     """
     picard FilterSamReads \
     REFERENCE_SEQUENCE=$reference_sequence \
-    INPUT=$cram \
-    OUTPUT=HTP0003A_picard_test2.cram \
+    INPUT=${cram} \
+    OUTPUT=${cram_filtered} \
     FILTER=includePairedIntervals \
-    INTERVAL_LIST=/sbgenomics/project-files/test2.interval_list \
-    MAX_RECORDS_IN_RAM=10000000
-
+    INTERVAL_LIST=$interval_list \
+    MAX_RECORDS_IN_RAM=$max_records_in_ram
     """
 }

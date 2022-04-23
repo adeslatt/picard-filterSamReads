@@ -40,6 +40,19 @@ Need to use your [GitHub token](https://docs.github.com/en/authentication/keepin
 gh auth login
 ```
 
+## adding emacs editor
+
+Sorry the editor is great in [JupyterLab](https://jupyterlab.readthedocs.io/en/stable/), I like emacs
+
+```bash
+conda install -c conda-forge emacs -y
+```
+
+## making main.nf
+
+Using the nextflow documentation faq for [How do I process multiple input files in parallel?](https://www.nextflow.io/docs/latest/faq.html#how-do-i-process-multiple-input-files-in-parallel)
+
+
 
 
 
