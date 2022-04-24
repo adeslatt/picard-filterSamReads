@@ -28,10 +28,17 @@ if (params.help) {
 
 cram_datasets      = Channel.fromPath(file(params.input))
 
-interval_list      = file(params.interval_list)
+interval_list      = Channel.fromPath(file(params.interval_list))
 
-reference_sequence = file(params.reference_sequence)
+reference_sequence = Channel.fromPath(file(params.reference_sequence))
 
+reference_sequence into
+  ch_reference_sequence_picardFilteredSamReads
+  ch_reference_sequence_samtoolsCramToFastq
+
+interval_list into
+  ch_interval_list_picardFilteredSamReads
+  
 max_records_in_ram = params.max_records_in_ram
 
 // Define Process
@@ -42,19 +49,21 @@ process picardFilterSamReads {
     publishDir "${params.outdir}", mode: 'copy'
 
     input:
-    file (cram) from cram_datasets
-
+    file (cram)               from cram_datasets
+    file (reference_sequence) from ch_reference_sequence_picardFilteredSamReads
+    file (interval_list)      from ch_interval_list_picardFilteredSamReads
+    
     output:
     file "*filtered.cram" into filtered_cram_ch
     
     script:
     """
     picard FilterSamReads \
-       REFERENCE_SEQUENCE=$reference_sequence \
+       REFERENCE_SEQUENCE=${reference_sequence} \
        INPUT=${cram} \
        OUTPUT=${cram}_filtered.cram \
        FILTER=includePairedIntervals \
-       INTERVAL_LIST=$interval_list \
+       INTERVAL_LIST=${interval_list} \
        MAX_RECORDS_IN_RAM=$max_records_in_ram
 
     """
@@ -67,7 +76,8 @@ process samtoolsCramToFastq {
    publishDir "${params.outdir}", mode: 'copy'
 
    input:
-   file (filtered_cram) from filtered_cram_ch
+   file (filtered_cram)      from filtered_cram_ch
+   file (reference_sequence) from ch_reference_sequence_samtoolsCramToFastq 
 
    output:
    file "*.fastq" into filtered_fastq_ch
@@ -75,9 +85,9 @@ process samtoolsCramToFastq {
    script:
    """
    samtools fastq \
-      --reference $reference_sequence \
+      --reference ${reference_sequence} \
       -1 ${filtered_cram}_1.fastq \
       -2 ${filtered_cram}_2.fastq \
-      $filtered_cram
+      ${filtered_cram}
    """
 }
