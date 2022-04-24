@@ -25,14 +25,8 @@ if (params.help) {
   exit 0
 }
 
-params.input              = "/sbgenomics/project-files/HTP_CRAMs/*.cram"
-params.tracedir           = "tracedir"
-params.outdir             = "filtered_crams"
-params.interval_list      = "/sbgenomics/project-files/test2.interval_list"
-params.reference_sequence = "/sbgenomics/project-files/References/Homo_sapiens_assembly38.fasta"
-params.max_records_in_ram = 10000000
 
-cram_datasets      = Channel.fromPath(params.input)
+cram_datasets      = Channel.fromPath(file(params.input))
 
 interval_list      = file(params.interval_list)
 
@@ -83,7 +77,7 @@ process samtoolsCramToFastq {
    samtools fastq \
       --reference $reference_sequence \
       -1 ${filtered_cram}_1.fastq \
-      -2 ${filtered_cram}_22.fastq \
+      -2 ${filtered_cram}_2.fastq \
       $filtered_cram
    """
 }
