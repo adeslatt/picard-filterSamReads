@@ -32,12 +32,14 @@ interval_list      = Channel.fromPath(file(params.interval_list))
 
 reference_sequence = Channel.fromPath(file(params.reference_sequence))
 
-reference_sequence into
+reference_sequence.into {
   ch_reference_sequence_picardFilteredSamReads
   ch_reference_sequence_samtoolsCramToFastq
+}
 
-interval_list into
+interval_list.into {
   ch_interval_list_picardFilteredSamReads
+}
   
 max_records_in_ram = params.max_records_in_ram
 
