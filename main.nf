@@ -13,6 +13,7 @@ def helpMessage() {
     --outdir              The directory for the filtered cram (default is filtered_crams).
     --outputfile          test place holder - shouldn't be necessary
     --reference_sequence  The assembly reference (Homo sapiens assembly as a fasta file.
+    --reference_fai       The assembly reference index (Homo sapiens assembly as a fai file.
     --tracedir            Where the traces and DAG and reports are kept.
     """.stripIndent()
 }
@@ -32,9 +33,16 @@ interval_list      = Channel.fromPath(file(params.interval_list))
 
 reference_sequence = Channel.fromPath(file(params.reference_sequence))
 
+reference_fai      = Channel.fromPath(file(params.reference_fai))
+
 reference_sequence.into {
   ch_reference_sequence_picardFilteredSamReads
   ch_reference_sequence_samtoolsCramToFastq
+}
+
+reference_fai.into {
+  ch_reference_fai_picardFilteredSamReads
+  ch_reference_fai_samtoolsCramToFastq
 }
 
 interval_list.into {
@@ -53,6 +61,7 @@ process picardFilterSamReads {
     input:
     file (cram)               from cram_datasets
     file (reference_sequence) from ch_reference_sequence_picardFilteredSamReads
+    file (reference_fai)      from ch_reference_fai_picardFilteredSamReads
     file (interval_list)      from ch_interval_list_picardFilteredSamReads
     
     output:
@@ -80,6 +89,7 @@ process samtoolsCramToFastq {
    input:
    file (filtered_cram)      from filtered_cram_ch
    file (reference_sequence) from ch_reference_sequence_samtoolsCramToFastq 
+   file (reference_fai)      from ch_reference_fai_samtoolsCramToFastq 
 
    output:
    file "*.fastq" into filtered_fastq_ch
