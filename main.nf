@@ -25,7 +25,7 @@ if (params.help) {
   exit 0
 }
 
-//params.input              = "/sbgenomics/project-files/HTP_CRAMs/*.cram"
+params.input              = "/sbgenomics/project-files/HTP_CRAMs/*.cram"
 params.tracedir           = "tracedir"
 params.outdir             = "filtered_crams"
 params.interval_list      = "/sbgenomics/project-files/test2.interval_list"
@@ -34,8 +34,6 @@ params.max_records_in_ram = 10000000
 
 cram_datasets      = Channel.fromPath(params.input)
 
-//filtered_cramfiles = Channel.fromPath(params.outdir)
-
 interval_list      = file(params.interval_list)
 
 reference_sequence = file(params.reference_sequence)
@@ -43,46 +41,49 @@ reference_sequence = file(params.reference_sequence)
 max_records_in_ram = params.max_records_in_ram
 
 // Define Process
-// process picardFilterSamReads {
-// 
-//     publishDir "${params.outdir}", mode: 'copy'
-// 
-//     input:
-//     file (cram) from cram_datasets
-//     
-//     output:
-//     file (*.cram)
-// 
-//     script:
-//     """
-//     picard FilterSamReads \
-//     REFERENCE_SEQUENCE=$reference_sequence \
-//     INPUT=${cram} \
-//     OUTPUT="filtered.cram\
-//     FILTER=includePairedIntervals \
-//     INTERVAL_LIST=$interval_list \
-//     MAX_RECORDS_IN_RAM=$max_records_in_ram
-//     """
-//   }
-
-// Define Process
 process picardFilterSamReads {
 
-    tag "$sample_name"
+    tag "picardFiltereSamReads"
 
     publishDir "${params.outdir}", mode: 'copy'
 
     input:
     file (cram) from cram_datasets
+
+    output:
+    file "*filtered.cram" into filtered_cram_ch
     
     script:
     """
     picard FilterSamReads \
        REFERENCE_SEQUENCE=$reference_sequence \
        INPUT=${cram} \
-       OUTPUT=filtered.cram \
+       OUTPUT=${cram}_filtered.cram \
        FILTER=includePairedIntervals \
        INTERVAL_LIST=$interval_list \
        MAX_RECORDS_IN_RAM=$max_records_in_ram
+
     """
   }
+
+process samtoolsCramToFastq {
+
+   tag "samtoolsCramToFastq"
+
+   publishDir "${params.outdir}", mode: 'copy'
+
+   input:
+   file (filtered_cram) from filtered_cram_ch
+
+   output:
+   file "*.fastq" into filtered_fastq_ch
+
+   script:
+   """
+   samtools fastq \
+      --reference $reference_sequence \
+      -1 ${filtered_cram}_1.fastq \
+      -2 ${filtered_cram}_22.fastq \
+      $filtered_cram
+   """
+}

@@ -48,9 +48,60 @@ Sorry the editor is great in [JupyterLab](https://jupyterlab.readthedocs.io/en/s
 conda install -c conda-forge emacs -y
 ```
 
+## Manual check of steps
+
+Two routines used -- `picard FilterSamReads` and `samtools fastq`
+
+
+### Samtools from the command line
+
+```bash
+samtools fastq --reference data/Homo_sapiens_assembly38.fasta -1 HTP0003A.1.fastq -2 HTP0003A.2.fastq HTP0003A_filtered.cram
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 1613932 reads
+```
+
+Checking results (4 lines per read in a fastq file)
+
+```bash
+(picard) wc -l *.fastq
+  3227864 HTP0003A.1.fastq
+  3227864 HTP0003A.2.fastq
+  6455728 total
+```
+
+Double check the numbers -
+
+3227864 / 4 = 806966
+
+806966 * 2 = 1613932 Reads
+
+It adds up.
+
+### Samtools from containerized image
+
+```bash
+docker run -it -v $PWD:$PWD -w $PWD samtools samtools fastq --reference data/Homo_sapiens_assembly38.fasta -1 HTP0003A.1.fastq -2 HTP0003A.2.fastq 2022Apr23ManualRun/HTP0003A_filtered.cram
+.fastq -2 HTP0003A.2.fastq 2022Apr23ManualRun/HTP0003A_filtered.cram 
+[M::bam2fq_mainloop] discarded 0 singletons
+[M::bam2fq_mainloop] processed 1613932 reads
+```
+
+response is identical.
+
+### Recap
+
+We made two containers, now we have stitched those together as two processes.   Making sure the file names are updated based upon the input file name and then into a workflow.
+
 ## making main.nf
 
 Using the nextflow documentation faq for [How do I process multiple input files in parallel?](https://www.nextflow.io/docs/latest/faq.html#how-do-i-process-multiple-input-files-in-parallel)
+
+Two processes
+
+1. picardFilterSamReads
+2. samtoolsCramToFastq
+
 
 
 
