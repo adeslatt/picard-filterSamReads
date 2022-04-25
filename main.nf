@@ -1,4 +1,4 @@
-#!/usr/bin/env nextflow
+nextflow run main.nf --input "data/*.cram" --interval_list "data/test2.interval_list" --reference_sequence "data/Homo_sapiens_assembly38.fasta" --outdir "results" #!/usr/bin/env nextflow
 
 def helpMessage() {
     log.info """
