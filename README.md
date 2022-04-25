@@ -179,8 +179,13 @@ executor >  local (1)
 ```
 
 
+## Workflow Overview DAG
 
+Generated when running Nextflow - here is the process graph
 
+<p>
+<img src="https://github.com/adeslatt/picard-filterSamReads/blob/1f2976ee1fc3258b2efc2190ad938675a5d109ff/assets/pipeline_dag.pdf" width="250">
+</p>
 
 
 
