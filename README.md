@@ -97,10 +97,14 @@ We made two containers, now we have stitched those together as two processes.   
 
 Using the nextflow documentation faq for [How do I process multiple input files in parallel?](https://www.nextflow.io/docs/latest/faq.html#how-do-i-process-multiple-input-files-in-parallel)
 
-Two processes
+Four processes
 
-1. picardFilterSamReads
-2. samtoolsCramToFastq
+1. picardFilterSamReads - uses an interval file to filter paired reads from a cram file using container built from [picard-docker](https://github.com/adeslatt/picard-docker)
+2. samtoolsCramToFastq - uses output from the picardFilterSamReads process to extract the reads as fastq files using a container built from [samtools-docker](https://github.com/adeslatt/samtools-docker)
+3. fastqc - performs quality control analysis on the fastq files extracted using a container built from [fastqc-docker](https://github.com/adeslatt/fastqc-docker)
+4. multiqc - creates a final quality control report using the output from fastqc using a container built from [multiqc-docker](https://github.com/adeslatt/multiqc-docker)
+
+
 
 
 
