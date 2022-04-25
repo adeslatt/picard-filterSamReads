@@ -51,12 +51,24 @@ interval_list.into {
   
 max_records_in_ram = params.max_records_in_ram
 
+// ------------------------------------------------------------
 // Define Process
+// ------------------------------------------------------------
+
+// ------------------------------------------------------------
+// picardFilterSamReads
+// purpose:   given a list of intervals (sam format) extract
+//            paired reads with picard tool for that genomic region.
+// container: picard as specified in the nextflow.config file (http://github/adeslatt/picard-docker)
+// input:     via channels channels but ultimately from command line input and directories
+//            for example all cram files in the input directory will be  processed in parallel.
+// output:    will be the filtered cram file
+// ------------------------------------------------------------
 process picardFilterSamReads {
 
     tag "picardFiltereSamReads"
-
     publishDir "${params.outdir}", mode: 'copy'
+    container  'pgc-images.sbgenomics.com/deslattesmaysa2/picard:v1.0'
 
     input:
     file (cram)               from cram_datasets
@@ -80,26 +92,86 @@ process picardFilterSamReads {
     """
   }
 
+// ------------------------------------------------------------
+// samtoolsCramToFastq
+// purpose:   given our filtered cram file - extract the fastq files for the region 
+// container: samtools can be specified here, in the nextflow.config or from command line
+//            code here: file (http://github/adeslatt/samtools-docker)
+// input:     via channels (good for parallelization)
+// output:    will be the paired reads
+// ------------------------------------------------------------
 process samtoolsCramToFastq {
 
-   tag "samtoolsCramToFastq"
+    tag "samtoolsCramToFastq"
+    publishDir "${params.outdir}", mode: 'copy'
+    container  'pgc-images.sbgenomics.com/deslattesmaysa2/samtools:latest'
 
-   publishDir "${params.outdir}", mode: 'copy'
+    input:
+    file (filtered_cram)      from filtered_cram_ch
+    file (reference_sequence) from ch_reference_sequence_samtoolsCramToFastq 
+    file (reference_fai)      from ch_reference_fai_samtoolsCramToFastq 
 
-   input:
-   file (filtered_cram)      from filtered_cram_ch
-   file (reference_sequence) from ch_reference_sequence_samtoolsCramToFastq 
-   file (reference_fai)      from ch_reference_fai_samtoolsCramToFastq 
+    output:
+    file "*.fastq" into filtered_fastq_ch
 
-   output:
-   file "*.fastq" into filtered_fastq_ch
-
-   script:
-   """
-   samtools fastq \
+    script:
+    """
+    samtools fastq \
       --reference ${reference_sequence} \
       -1 ${filtered_cram}_1.fastq \
       -2 ${filtered_cram}_2.fastq \
       ${filtered_cram}
-   """
+    """
+}
+
+// ------------------------------------------------------------
+// fastqc
+// purpose:   given fastqc files - do quality control inspection
+// container: fastqc can be specified here, in the nextflow.config or from command line
+//            code here: file (http://github/adeslatt/fastqc-docker)
+// input:     via channels (good for parallelization)
+// output:    zip and html reports
+// ------------------------------------------------------------
+process fastqc {
+    tag "fastqc"
+    publishDir "results", mode: 'copy'
+    container 'pgc-images.sbgenomics.com/deslattesmaysa2/fastqc:v1.0'
+
+    input:
+    set val(name), file(reads) from filtered_fastq_ch
+
+    output:
+    file "*_fastqc.{zip,html}" into fastqc_results_ch
+
+    script:
+    """
+    fastqc $reads
+    """
+}
+
+// ------------------------------------------------------------
+// multiqc
+// purpose:   given fastqc output files files - make a nice report
+// container: multiqc can be specified here, in the nextflow.config or from command line
+//            code here: file (http://github/adeslatt/fastqc-docker)
+// input:     via channels (good for parallelization)
+// output:    zip and html reports
+// ------------------------------------------------------------
+process multiqc {
+    tag "multiqc"
+
+    publishDir "results", mode: 'copy'
+    container 'pgc-images.sbgenomics.com/deslattesmaysa2/multiqc:v1.0'
+
+    input:
+    file ('fastqc/*') from fastqc_results_ch.collect()
+
+    output:
+    file "*multiqc_report.html" into multiqc_report
+    file "*_data"
+
+    script:
+    """
+    multiqc . -m fastqc
+    """
 }
