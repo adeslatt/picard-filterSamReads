@@ -184,7 +184,7 @@ executor >  local (1)
 Generated when running Nextflow - here is the process graph
 
 <p>
-<img src="https://github.com/adeslatt/picard-filterSamReads/blob/main/assets/pipeline_dag.png" width="250">
+<img src="https://github.com/adeslatt/picard-filterSamReads/blob/main/assets/pipeline_dag.png" width="1000">
 </p>
 
 
