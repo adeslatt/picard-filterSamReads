@@ -104,6 +104,81 @@ Four processes
 3. fastqc - performs quality control analysis on the fastq files extracted using a container built from [fastqc-docker](https://github.com/adeslatt/fastqc-docker)
 4. multiqc - creates a final quality control report using the output from fastqc using a container built from [multiqc-docker](https://github.com/adeslatt/multiqc-docker)
 
+## executing
+
+the input requirements can be obtained from running with option `--help`
+
+```bash
+(picard) nichdm02209715:picard-filterSamReads deslattesmaysa2$ nextflow run main.nf --help
+N E X T F L O W  ~  version 21.10.6
+Launching `main.nf` [modest_austin] - revision: 9d1ff459fd
+
+Usage:
+The typical command for running the pipeline is as follows:
+
+Inputs Options:
+--input               Input directory for cram files.
+--interval_list       File containing the intervals to be extracted from the cram
+--max_records_in_ram  For picard tools to specify the maximum records in ram (default is 500000).
+--outdir              The directory for the filtered cram (default is filtered_crams).
+--reference_sequence  The assembly reference (Homo sapiens assembly as a fasta file.
+--reference_fai       The assembly reference index (Homo sapiens assembly as a fai file.
+--tracedir            Where the traces and DAG and reports are kept.
+```
+
+
+To execute, all options are required:
+
+```bash
+nextflow run main.nf \
+--reference_sequence "data/Homo_sapiens_assembly38.fasta" \
+--reference_fai      "data/Homo_sapiens_assembly38.fasta.fai" \
+--input              "data/HTP0003A.cram" \
+--outdir             "2022Apr25NextFlowRun" \
+--tracedir           "pipeline_info" \
+--interval_list      "data/test2.interval_list" 
+```
+
+Command when executed on my macbook pro:
+
+```bash
+(picard) nichdm02209715:picard-filterSamReads deslattesmaysa2$ nextflow run main.nf --help
+N E X T F L O W  ~  version 21.10.6
+Launching `main.nf` [modest_austin] - revision: 9d1ff459fd
+
+Usage:
+The typical command for running the pipeline is as follows:
+nextflow run main.nf --bams sample.bam [Options]
+
+Inputs Options:
+--input               Input directory for cram files.
+--interval_list       File containing the intervals to be extracted from the cram
+--max_records_in_ram  For picard tools to specify the maximum records in ram (default is 500000).
+--outdir              The directory for the filtered cram (default is filtered_crams).
+--outputfile          test place holder - shouldn't be necessary
+--reference_sequence  The assembly reference (Homo sapiens assembly as a fasta file.
+--reference_fai       The assembly reference index (Homo sapiens assembly as a fai file.
+--tracedir            Where the traces and DAG and reports are kept.
+
+(picard) nichdm02209715:picard-filterSamReads deslattesmaysa2$ nextflow run main.nf \
+> --reference_sequence "data/Homo_sapiens_assembly38.fasta" \
+> --reference_fai      "data/Homo_sapiens_assembly38.fasta.fai" \
+> --input              "data/HTP0003A.cram" \
+> --outdir             "2022Apr25NextFlowRun" \
+> --tracedir           "pipeline_info" \
+> --interval_list      "data/test2.interval_list" 
+N E X T F L O W  ~  version 21.10.6
+Launching `main.nf` [compassionate_shirley] - revision: 9d1ff459fd
+WARN: The `into` operator should be used to connect two or more target channels -- consider to replace it with `.set { ch_interval_list_picardFilteredSamReads }`
+WARN: Access to undefined parameter `max_records_in_ram` -- Initialise it to a default value eg. `params.max_records_in_ram = some_value`
+executor >  local (1)
+[39/d8738b] process > picardFilterSamReads (picardFiltereSamReads) [  0%] 0 of 1
+[-        ] process > samtoolsCramToFastq                          -
+[-        ] process > fastqc                                       -
+[-        ] process > multiqc                                      -
+```
+
+
 
 
 
