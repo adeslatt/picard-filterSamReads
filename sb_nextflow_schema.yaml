@@ -94,52 +94,33 @@ inputs:
     inputBinding:
         prefix: --reference_sequence
     label: The assembly reference (Homo sapiens assembly as a fasta file)
-    type:
-    - string
-    - 'null'
+    type: File
 -   id: reference_sequence_fai
     inputBinding:
         prefix: --reference_fai
     label: The assembly reference index (Homo sapiens assembly as a fasta file fai file)
-    type:
-    - string
-    - 'null'
+    type: File
 -   id: interval_list
     inputBinding:
         prefix: --interval_list
     label: File containing the intervals to be extracted from the cram
-    type:
-    - string
-    - 'null'
+    type: File
+-   id: input
+    inputBinding:
+        prefix: --input
+    label: File with the input cram files
+    type: File[]
 -   id: outdir
     inputBinding:
         prefix: --outdir
     label: The directory for the filtered cram 
+    sbg:toolDefaultValue: ${params.outdir}/results
     type:
-    - string
+    - Directory
     - 'null'
 -   id: run_name
     inputBinding:
         prefix: --run_name
-    type:
-    - string
-    - 'null'
--   doc: You will need to create a design file with information about the samples
-        in your experiment before running the pipeline. Use this parameter to specify
-        its location. It has to be a comma-separated file with 3 columns, and a header
-        row. See [usage docs](https://nf-co.re//usage#samplesheet-input).
-    id: input
-    inputBinding:
-        prefix: --input
-    label: Path to comma-separated file containing information about the samples in
-        the experiment.
-    type:
-    - string
--   id: outdir
-    inputBinding:
-        prefix: --outdir
-    label: Path to the output directory where the results will be saved.
-    sbg:toolDefaultValue: ./results
     type:
     - string
     - 'null'
@@ -155,14 +136,7 @@ inputs:
         prefix: --tracedir
     label: Directory to keep pipeline Nextflow logs and reports.
     sbg:toolDefaultValue: ${params.outdir}/pipeline_info
-    type:
-    - string
-    - 'null'
--   doc: List of files not added as explicit workflow inputs but required for workflow
-        execution.
-    id: auxiliary_files
-    label: Auxiliary files
-    type: File[]?
+    type: Directory
 outputs:
 -   doc: This is a template output. Please change glob to directories specified in
         publishDir in the workflow.
