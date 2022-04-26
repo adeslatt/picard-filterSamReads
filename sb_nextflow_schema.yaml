@@ -1,0 +1,177 @@
+app_content:
+    code_package: 6268216ed63f7c6d8d1b2800
+    entrypoint: main.nf
+class: nextflow
+cwlVersion: None
+doc: "# picard-filterSamReads\n\nUsing the work that Matthew Galbraith outlined -\
+    \ make a nextflow workflow that allows this to be run and scaled.\n\n\n## use\
+    \ conda to keep a clean environment\n\ncreate an environment to ensure all pieces\
+    \ required are installed in a clean environment.\nHere we call it `picard`.\n\n\
+    Conda environment management is rich and nearly complete.  Current some problems\
+    \ - for example samtools install via conda does not work.\n\nSearch and use [anaconda](https://anaconda.org/)\
+    \ for packages. \n\n```bash\nconda create -n picard -y\n```\n\n## install [nextflow](https://nextflow.io)\n\
+    \nWe develop and install our workflow using nextflow -- we need to install it\
+    \ :)\n\n```bash\nconda install -c bioconda nextflow\n```\n\n## manage your GitHub\n\
+    \nKeep track of everything on GitHub - final workflow will be `main.nf` with configuration\
+    \ in `nextflow.config`.\n\nNeed to use the command line interface routine `gh`.\n\
+    \n```bash\nconda install -c conda-forge gh\n```\n\nNeed to use your [GitHub token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token)\
+    \ to authenticate.\n\n```bash\ngh auth login\n```\n\n## adding emacs editor\n\n\
+    Sorry the editor is great in [JupyterLab](https://jupyterlab.readthedocs.io/en/stable/),\
+    \ I like emacs\n\n```bash\nconda install -c conda-forge emacs -y\n```\n\n## Manual\
+    \ check of steps\n\nTwo routines used -- `picard FilterSamReads` and `samtools\
+    \ fastq`\n\n\n### Samtools from the command line\n\n```bash\nsamtools fastq --reference\
+    \ data/Homo_sapiens_assembly38.fasta -1 HTP0003A.1.fastq -2 HTP0003A.2.fastq HTP0003A_filtered.cram\n\
+    [M::bam2fq_mainloop] discarded 0 singletons\n[M::bam2fq_mainloop] processed 1613932\
+    \ reads\n```\n\nChecking results (4 lines per read in a fastq file)\n\n```bash\n\
+    (picard) wc -l *.fastq\n  3227864 HTP0003A.1.fastq\n  3227864 HTP0003A.2.fastq\n\
+    \  6455728 total\n```\n\nDouble check the numbers -\n\n3227864 / 4 = 806966\n\n\
+    806966 * 2 = 1613932 Reads\n\nIt adds up.\n\n### Samtools from containerized image\n\
+    \n```bash\ndocker run -it -v $PWD:$PWD -w $PWD samtools samtools fastq --reference\
+    \ data/Homo_sapiens_assembly38.fasta -1 HTP0003A.1.fastq -2 HTP0003A.2.fastq 2022Apr23ManualRun/HTP0003A_filtered.cram\n\
+    .fastq -2 HTP0003A.2.fastq 2022Apr23ManualRun/HTP0003A_filtered.cram \n[M::bam2fq_mainloop]\
+    \ discarded 0 singletons\n[M::bam2fq_mainloop] processed 1613932 reads\n```\n\n\
+    response is identical.\n\n### Recap\n\nWe made two containers, now we have stitched\
+    \ those together as two processes.   Making sure the file names are updated based\
+    \ upon the input file name and then into a workflow.\n\n## making main.nf\n\n\
+    Using the nextflow documentation faq for [How do I process multiple input files\
+    \ in parallel?](https://www.nextflow.io/docs/latest/faq.html#how-do-i-process-multiple-input-files-in-parallel)\n\
+    \nFour processes\n\n1. picardFilterSamReads - uses an interval file to filter\
+    \ paired reads from a cram file using container built from [picard-docker](https://github.com/adeslatt/picard-docker)\n\
+    2. samtoolsCramToFastq - uses output from the picardFilterSamReads process to\
+    \ extract the reads as fastq files using a container built from [samtools-docker](https://github.com/adeslatt/samtools-docker)\n\
+    3. fastqc - performs quality control analysis on the fastq files extracted using\
+    \ a container built from [fastqc-docker](https://github.com/adeslatt/fastqc-docker)\n\
+    4. multiqc - creates a final quality control report using the output from fastqc\
+    \ using a container built from [multiqc-docker](https://github.com/adeslatt/multiqc-docker)\n\
+    \n## executing\n\nthe input requirements can be obtained from running with option\
+    \ `--help`\n\n```bash\n(picard) nichdm02209715:picard-filterSamReads deslattesmaysa2$\
+    \ nextflow run main.nf --help\nN E X T F L O W  ~  version 21.10.6\nLaunching\
+    \ `main.nf` [modest_austin] - revision: 9d1ff459fd\n\nUsage:\nThe typical command\
+    \ for running the pipeline is as follows:\n\nInputs Options:\n--input        \
+    \       Input directory for cram files.\n--interval_list       File containing\
+    \ the intervals to be extracted from the cram\n--max_records_in_ram  For picard\
+    \ tools to specify the maximum records in ram (default is 500000).\n--outdir \
+    \             The directory for the filtered cram (default is filtered_crams).\n\
+    --reference_sequence  The assembly reference (Homo sapiens assembly as a fasta\
+    \ file.\n--reference_fai       The assembly reference index (Homo sapiens assembly\
+    \ as a fai file.\n--tracedir            Where the traces and DAG and reports are\
+    \ kept.\n```\n\n\nTo execute, all options are required:\n\n```bash\nnextflow run\
+    \ main.nf \\\n--reference_sequence \"data/Homo_sapiens_assembly38.fasta\" \\\n\
+    --reference_fai      \"data/Homo_sapiens_assembly38.fasta.fai\" \\\n--input  \
+    \            \"data/HTP0003A.cram\" \\\n--outdir             \"2022Apr25NextFlowRun\"\
+    \ \\\n--tracedir           \"pipeline_info\" \\\n--interval_list      \"data/test2.interval_list\"\
+    \ \n```\n\nCommand when executed on my macbook pro:\n\n```bash\n(picard) nichdm02209715:picard-filterSamReads\
+    \ deslattesmaysa2$ nextflow run main.nf --help\nN E X T F L O W  ~  version 21.10.6\n\
+    Launching `main.nf` [modest_austin] - revision: 9d1ff459fd\n\nUsage:\nThe typical\
+    \ command for running the pipeline is as follows:\nnextflow run main.nf --bams\
+    \ sample.bam [Options]\n\nInputs Options:\n--input               Input directory\
+    \ for cram files.\n--interval_list       File containing the intervals to be extracted\
+    \ from the cram\n--max_records_in_ram  For picard tools to specify the maximum\
+    \ records in ram (default is 500000).\n--outdir              The directory for\
+    \ the filtered cram (default is filtered_crams).\n--outputfile          test place\
+    \ holder - shouldn't be necessary\n--reference_sequence  The assembly reference\
+    \ (Homo sapiens assembly as a fasta file.\n--reference_fai       The assembly\
+    \ reference index (Homo sapiens assembly as a fai file.\n--tracedir          \
+    \  Where the traces and DAG and reports are kept.\n\n(picard) nichdm02209715:picard-filterSamReads\
+    \ deslattesmaysa2$ nextflow run main.nf \\\n> --reference_sequence \"data/Homo_sapiens_assembly38.fasta\"\
+    \ \\\n> --reference_fai      \"data/Homo_sapiens_assembly38.fasta.fai\" \\\n>\
+    \ --input              \"data/HTP0003A.cram\" \\\n> --outdir             \"2022Apr25NextFlowRun\"\
+    \ \\\n> --tracedir           \"pipeline_info\" \\\n> --interval_list      \"data/test2.interval_list\"\
+    \ \nN E X T F L O W  ~  version 21.10.6\nLaunching `main.nf` [compassionate_shirley]\
+    \ - revision: 9d1ff459fd\nWARN: The `into` operator should be used to connect\
+    \ two or more target channels -- consider to replace it with `.set { ch_interval_list_picardFilteredSamReads\
+    \ }`\nWARN: Access to undefined parameter `max_records_in_ram` -- Initialise it\
+    \ to a default value eg. `params.max_records_in_ram = some_value`\nexecutor >\
+    \  local (1)\n[39/d8738b] process > picardFilterSamReads (picardFiltereSamReads)\
+    \ [  0%] 0 of 1\n[-        ] process > samtoolsCramToFastq                   \
+    \       -\n[-        ] process > fastqc                                      \
+    \ -\n[-        ] process > multiqc                                      -\n```\n\
+    \n\n## Workflow Overview DAG\n\nGenerated when running Nextflow - here is the\
+    \ process graph\n\n<p>\n<img src=\"https://github.com/adeslatt/picard-filterSamReads/blob/main/assets/pipeline_dag.png\"\
+    \ width=\"1000\">\n</p>\n\n\n\n\n\n\n"
+inputs:
+-   id: reference_sequence
+    inputBinding:
+        prefix: --reference_sequence
+    label: The assembly reference (Homo sapiens assembly as a fasta file)
+    type:
+    - string
+    - 'null'
+-   id: reference_sequence_fai
+    inputBinding:
+        prefix: --reference_fai
+    label: The assembly reference index (Homo sapiens assembly as a fasta file fai file)
+    type:
+    - string
+    - 'null'
+-   id: interval_list
+    inputBinding:
+        prefix: --interval_list
+    label: File containing the intervals to be extracted from the cram
+    type:
+    - string
+    - 'null'
+-   id: outdir
+    inputBinding:
+        prefix: --outdir
+    label: The directory for the filtered cram 
+    type:
+    - string
+    - 'null'
+-   id: run_name
+    inputBinding:
+        prefix: --run_name
+    type:
+    - string
+    - 'null'
+-   doc: You will need to create a design file with information about the samples
+        in your experiment before running the pipeline. Use this parameter to specify
+        its location. It has to be a comma-separated file with 3 columns, and a header
+        row. See [usage docs](https://nf-co.re//usage#samplesheet-input).
+    id: input
+    inputBinding:
+        prefix: --input
+    label: Path to comma-separated file containing information about the samples in
+        the experiment.
+    type:
+    - string
+-   id: outdir
+    inputBinding:
+        prefix: --outdir
+    label: Path to the output directory where the results will be saved.
+    sbg:toolDefaultValue: ./results
+    type:
+    - string
+    - 'null'
+-   id: help
+    inputBinding:
+        prefix: --help
+    label: Display help text.
+    type:
+    - boolean
+    - 'null'
+-   id: tracedir
+    inputBinding:
+        prefix: --tracedir
+    label: Directory to keep pipeline Nextflow logs and reports.
+    sbg:toolDefaultValue: ${params.outdir}/pipeline_info
+    type:
+    - string
+    - 'null'
+-   doc: List of files not added as explicit workflow inputs but required for workflow
+        execution.
+    id: auxiliary_files
+    label: Auxiliary files
+    type: File[]?
+outputs:
+-   doc: This is a template output. Please change glob to directories specified in
+        publishDir in the workflow.
+    id: nf_workdir
+    outputBinding:
+        glob: work
+    type: Directory
+requirements:
+-   class: InlineJavascriptRequirement
+-   class: InitialWorkDirRequirement
+    listing:
+    - $(inputs.auxiliary_files)
