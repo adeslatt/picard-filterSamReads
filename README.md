@@ -178,6 +178,53 @@ executor >  local (1)
 [-        ] process > multiqc                                      -
 ```
 
+## Uploading Nextflow Workflow onto Cavatica
+
+A nice feature of the Cavatica platform - now we can upload our Nextflow workflow onto Cavatica.   
+
+The steps are as follows:
+
+1. Create your workflow and put it into GitHub
+
+2. Create a credentials file placed here `~/.sevenbridges/cavatica`.  The content looks like this:
+
+```bash
+[deslattesmaysa2]
+api_endpoint = https://cavatica-api.sbgenomics.com/v2
+auth_token = [your developers token]
+```
+
+The name in between the `[]` is your username on the platform.
+
+3. git clone your GitHub workflow in a clean directory.  This is important because the process of uploading as an application onto Cavatica zips up the directory - and you do not want your old work directories to be zipped inside!
+
+4. Install the sbpack_nf routine.  This is done with pip
+
+```bash
+pip install sbpack
+```
+
+5. Now use the [sbpack_nf](https://docs.cavatica.org/v1.0/docs/bring-nextflow-apps-to-cavatica#section-optimizing-the-converted-app-for-execution-in-seven-bridges-environments) command.  See the link gives all the details for the options.
+
+```bash
+sbpack_nf --profile deslattesmaysa2 --appid matthew.galbraith/picard-test/picard-filtercramfile-nf --workflow-path /Users/deslattesmaysa2/clean/picard-filterSamReads --entrypoint main.nf --dump-sb-app
+```
+
+The `--dump-sb-app` outputs two additional files (`sb_nextflow_schema.yaml` and `sb_nextflow_schema.json`)
+
+6. Edit the `sb_nextflow_schema.yaml` to accept the input files using the details as outlined in the [Cavatica Nextflow help pages](https://docs.cavatica.org/v1.0/docs/bring-nextflow-apps-to-cavatica#section-optimizing-the-converted-app-for-execution-in-seven-bridges-environments)
+
+The final form of the `sb_nextflow_schema.yaml` may be found in this repository [sb_nextflow_schema.yaml](https://github.com/adeslatt/picard-filterSamReads/blob/main/sb_nextflow_schema.yaml)
+
+7. upload the edited `sb_nextflow_schema.yaml`
+
+Note that this is done with the `sbpack` command.
+
+```bash
+sbpack deslattesmaysa2 matthew.galbraith/picard-test/picard-filtercramfile-nf  sb_nextflow_schema.yaml
+```
+
+And then it is an application ready to be used on the cavatica platform.
 
 ## Workflow Overview DAG
 
