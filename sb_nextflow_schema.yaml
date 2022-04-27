@@ -1,5 +1,5 @@
 app_content:
-    code_package: 6268216ed63f7c6d8d1b2800
+    code_package: 6269b9434d85bc2e025dd9c5
     entrypoint: main.nf
 class: nextflow
 cwlVersion: None
@@ -86,41 +86,61 @@ doc: "# picard-filterSamReads\n\nUsing the work that Matthew Galbraith outlined 
     \ [  0%] 0 of 1\n[-        ] process > samtoolsCramToFastq                   \
     \       -\n[-        ] process > fastqc                                      \
     \ -\n[-        ] process > multiqc                                      -\n```\n\
-    \n\n## Workflow Overview DAG\n\nGenerated when running Nextflow - here is the\
-    \ process graph\n\n<p>\n<img src=\"https://github.com/adeslatt/picard-filterSamReads/blob/main/assets/pipeline_dag.png\"\
+    \n## Uploading Nextflow Workflow onto Cavatica\n\nA nice feature of the Cavatica\
+    \ platform - now we can upload our Nextflow workflow onto Cavatica.   \n\nThe\
+    \ steps are as follows:\n\n1. Create your workflow and put it into GitHub\n\n\
+    2. Create a credentials file placed here `~/.sevenbridges/cavatica`.  The content\
+    \ looks like this:\n\n```bash\n[deslattesmaysa2]\napi_endpoint = https://cavatica-api.sbgenomics.com/v2\n\
+    auth_token = [your developers token]\n```\n\nThe name in between the `[]` is your\
+    \ username on the platform.\n\n3. git clone your GitHub workflow in a clean directory.\
+    \  This is important because the process of uploading as an application onto Cavatica\
+    \ zips up the directory - and you do not want your old work directories to be\
+    \ zipped inside!\n\n4. Install the sbpack_nf routine.  This is done with pip\n\
+    \n```bash\npip install sbpack\n```\n\n5. Now use the [sbpack_nf](https://docs.cavatica.org/v1.0/docs/bring-nextflow-apps-to-cavatica#section-optimizing-the-converted-app-for-execution-in-seven-bridges-environments)\
+    \ command.  See the link gives all the details for the options.\n\n```bash\nsbpack_nf\
+    \ --profile deslattesmaysa2 --appid matthew.galbraith/picard-test/picard-filtercramfile-nf\
+    \ --workflow-path /Users/deslattesmaysa2/clean/picard-filterSamReads --entrypoint\
+    \ main.nf --dump-sb-app\n```\n\nThe `--dump-sb-app` outputs two additional files\
+    \ (`sb_nextflow_schema.yaml` and `sb_nextflow_schema.json`)\n\n6. Edit the `sb_nextflow_schema.yaml`\
+    \ to accept the input files using the details as outlined in the [Cavatica Nextflow\
+    \ help pages](https://docs.cavatica.org/v1.0/docs/bring-nextflow-apps-to-cavatica#section-optimizing-the-converted-app-for-execution-in-seven-bridges-environments)\n\
+    \nThe final form of the `sb_nextflow_schema.yaml` may be found in this repository\
+    \ [sb_nextflow_schema.yaml](https://github.com/adeslatt/picard-filterSamReads/blob/main/sb_nextflow_schema.yaml)\n\
+    \n7. upload the edited `sb_nextflow_schema.yaml`\n\nNote that this is done with\
+    \ the `sbpack` command.\n\n```bash\nsbpack deslattesmaysa2 matthew.galbraith/picard-test/picard-filtercramfile-nf\
+    \  sb_nextflow_schema.yaml\n```\n\nAnd then it is an application ready to be used\
+    \ on the cavatica platform.\n\n## Workflow Overview DAG\n\nGenerated when running\
+    \ Nextflow - here is the process graph\n\n<p>\n<img src=\"https://github.com/adeslatt/picard-filterSamReads/blob/main/assets/pipeline_dag.png\"\
     \ width=\"1000\">\n</p>\n\n\n\n\n\n\n"
 inputs:
 -   id: reference_sequence
     inputBinding:
         prefix: --reference_sequence
-    label: The assembly reference (Homo sapiens assembly as a fasta file)
-    type: File
--   id: reference_sequence_fai
-    inputBinding:
-        prefix: --reference_fai
-    label: The assembly reference index (Homo sapiens assembly as a fasta file fai file)
-    type: File
--   id: interval_list
-    inputBinding:
-        prefix: --interval_list
-    label: File containing the intervals to be extracted from the cram
-    type: File
--   id: input
-    inputBinding:
-        prefix: --input
-    label: File with the input cram files
-    type: File[]
--   id: outdir
-    inputBinding:
-        prefix: --outdir
-    label: The directory for the filtered cram 
-    sbg:toolDefaultValue: ${params.outdir}/results
     type:
-    - Directory
+    - string
     - 'null'
 -   id: run_name
     inputBinding:
         prefix: --run_name
+    type:
+    - string
+    - 'null'
+-   doc: You will need to create a design file with information about the samples
+        in your experiment before running the pipeline. Use this parameter to specify
+        its location. It has to be a comma-separated file with 3 columns, and a header
+        row. See [usage docs](https://nf-co.re//usage#samplesheet-input).
+    id: input
+    inputBinding:
+        prefix: --input
+    label: Path to comma-separated file containing information about the samples in
+        the experiment.
+    type:
+    - string
+-   id: outdir
+    inputBinding:
+        prefix: --outdir
+    label: Path to the output directory where the results will be saved.
+    sbg:toolDefaultValue: ./results
     type:
     - string
     - 'null'
@@ -136,13 +156,21 @@ inputs:
         prefix: --tracedir
     label: Directory to keep pipeline Nextflow logs and reports.
     sbg:toolDefaultValue: ${params.outdir}/pipeline_info
-    type: Directory
+    type:
+    - string
+    - 'null'
+-   doc: List of files not added as explicit workflow inputs but required for workflow
+        execution.
+    id: auxiliary_files
+    label: Auxiliary files
+    type: File[]?
 outputs:
 -   doc: This is a template output. Please change glob to directories specified in
         publishDir in the workflow.
     id: nf_workdir
+    sbg:toolDefaultValue: ${params.outdir}
     outputBinding:
-        glob: work
+        glob: ${params.outdir}
     type: Directory
 requirements:
 -   class: InlineJavascriptRequirement
