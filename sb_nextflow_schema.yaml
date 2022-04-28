@@ -119,28 +119,19 @@ inputs:
     type:
     - string
     - 'null'
--   id: run_name
-    inputBinding:
-        prefix: --run_name
-    type:
-    - string
-    - 'null'
--   doc: You will need to create a design file with information about the samples
-        in your experiment before running the pipeline. Use this parameter to specify
-        its location. It has to be a comma-separated file with 3 columns, and a header
-        row. See [usage docs](https://nf-co.re//usage#samplesheet-input).
-    id: input
+-   id: input
     inputBinding:
         prefix: --input
     label: Path to comma-separated file containing information about the samples in
         the experiment.
     type:
     - string
+    - 'null'
 -   id: outdir
     inputBinding:
         prefix: --outdir
     label: Path to the output directory where the results will be saved.
-    sbg:toolDefaultValue: ./results
+    sbg:toolDefaultValue: results
     type:
     - string
     - 'null'
