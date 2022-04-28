@@ -147,7 +147,7 @@ inputs:
         prefix: --input
     label: Cram input file
     type:
-    - Directory
+    - File
     - 'null'
 -   id: help
     inputBinding:
