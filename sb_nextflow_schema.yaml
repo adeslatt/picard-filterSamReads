@@ -116,24 +116,38 @@ inputs:
 -   id: reference_sequence
     inputBinding:
         prefix: --reference_sequence
+    label: The assembly reference (Homo sapiens assembly as a fasta file)
     type:
-    - string
+    - File
     - 'null'
--   id: input
+-   id: reference_sequence_fai
     inputBinding:
-        prefix: --input
-    label: Path to comma-separated file containing information about the samples in
-        the experiment.
+        prefix: --reference_fai
+    label: The assembly reference index (Homo sapiens assembly as a fasta file fai file)
     type:
-    - string
+    - File
+    - 'null'
+-   id: interval_list
+    inputBinding:
+        prefix: --interval_list
+    label: Intervals
+    doc: This is the file containing the intervals to be pulled from the cram
+    type:
+    - File
     - 'null'
 -   id: outdir
     inputBinding:
         prefix: --outdir
-    label: Path to the output directory where the results will be saved.
-    sbg:toolDefaultValue: results
+    label: Directory for all output
     type:
-    - string
+    - Directory
+    - 'null'
+-   id: input
+    inputBinding:
+        prefix: --input
+    label: Cram input file
+    type:
+    - Directory
     - 'null'
 -   id: help
     inputBinding:
@@ -148,23 +162,23 @@ inputs:
     label: Directory to keep pipeline Nextflow logs and reports.
     sbg:toolDefaultValue: ${params.outdir}/pipeline_info
     type:
-    - string
+    - Directory
     - 'null'
--   doc: List of files not added as explicit workflow inputs but required for workflow
-        execution.
-    id: auxiliary_files
-    label: Auxiliary files
-    type: File[]?
 outputs:
 -   doc: This is a template output. Please change glob to directories specified in
         publishDir in the workflow.
     id: nf_workdir
-    sbg:toolDefaultValue: ${params.outdir}
     outputBinding:
-        glob: ${params.outdir}
-    type: Directory
+        glob: work
+    type:
+    - Directory
+    - 'null'
 requirements:
 -   class: InlineJavascriptRequirement
 -   class: InitialWorkDirRequirement
     listing:
-    - $(inputs.auxiliary_files)
+    - $(inputs.reference_sequence)
+    - $(inputs.reference_fai)
+    - $(inputs.interval_list)
+    - $(inputs.outdir)
+    - $(inputs.input)
