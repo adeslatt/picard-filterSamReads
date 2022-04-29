@@ -165,9 +165,9 @@ inputs:
     - Directory
     - 'null'
 outputs:
--   id: output_directory
+-   id: output_dir
     outputBinding:
-        glob: $(inputs.outdir)
+        glob: 'outputs'
     type: Directory
 requirements:
 -   class: InlineJavascriptRequirement
