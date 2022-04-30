@@ -116,14 +116,16 @@ inputs:
 -   id: reference_sequence
     inputBinding:
         prefix: --reference_sequence
-    label: The assembly reference (Homo sapiens assembly as a fasta file)
+    label: Reference Fasta File
+    doc:  This is the Homo sapiens assembly as a fasta file
     type:
     - File
     - 'null'
 -   id: reference_sequence_fai
     inputBinding:
         prefix: --reference_fai
-    label: The assembly reference index (Homo sapiens assembly as a fasta file fai file)
+    label: Reference Index (fai) file
+    doc: The assembly reference index (Homo sapiens assembly as a fasta file fai file)
     type:
     - File
     - 'null'
@@ -149,26 +151,25 @@ inputs:
     type:
     - File
     - 'null'
--   id: help
-    inputBinding:
-        prefix: --help
-    label: Display help text.
-    type:
-    - boolean
-    - 'null'
 -   id: tracedir
     inputBinding:
         prefix: --tracedir
     label: Directory to keep pipeline Nextflow logs and reports.
-    sbg:toolDefaultValue: ${params.outdir}/pipeline_info
+    sbg:toolDefaultValue: $(inputs.outdir)/pipeline_info
     type:
     - Directory
     - 'null'
 outputs:
+-   id: nf_workdir
+    outputBinding:
+        glob: work
+    type: Directory
+    sbg:toolDefaultValue: work
 -   id: output_directory
     outputBinding:
         glob: $(inputs.outdir)
     type: Directory
+    sbg:toolDefaultValue: results
 requirements:
 -   class: InlineJavascriptRequirement
 -   class: InitialWorkDirRequirement
