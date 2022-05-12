@@ -158,21 +158,13 @@ inputs:
   - Directory
   - 'null'
 outputs:
-  - id: nf_workdir
-  - doc: this is the output dir user specfied
-    outputBinding: {
+-   doc: This is a template output. Please change glob to directories specified in
+        publishDir in the workflow.
+    id: nf_workdir
+    outputBinding:
         glob: $(inputs.outdir)
-    }
     type: Directory
-  - id: pipeline
-  - doc: this is the trace dir user specified
-    outputBindings: {
-        glob: $(inputs.tracedir)
-    }
-  - type: Directory
-    
-  
-    
+        
 requirements:
 - class: InlineJavascriptRequirement
 - class: InitialWorkDirRequirement
