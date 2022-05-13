@@ -138,9 +138,9 @@ inputs:
 - id: outdir
   inputBinding:
     prefix: --outdir
-  label: Directory for all output
+  label: string name for all output
   type:
-  - Directory
+  - String
   - 'null'
 - id: input
   inputBinding:
@@ -158,9 +158,7 @@ inputs:
   - Directory
   - 'null'
 outputs:
--   doc: This is a template output. Please change glob to directories specified in
-        publishDir in the workflow.
-    id: nf_workdir
+-   id: output_directory
     outputBinding:
         glob: $(inputs.outdir)
     type: Directory
