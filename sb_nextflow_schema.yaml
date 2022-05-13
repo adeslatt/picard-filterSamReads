@@ -111,52 +111,48 @@ doc: "# picard-filterSamReads\n\nUsing the work that Matthew Galbraith outlined 
   \ Nextflow - here is the process graph\n\n<p>\n<img src=\"https://github.com/adeslatt/picard-filterSamReads/blob/main/assets/pipeline_dag.png\"\
   \ width=\"1000\">\n</p>\n\n\n\n\n\n\n"
 inputs:
-- doc: This is the Homo sapiens assembly as a fasta file
-  id: reference_sequence
+- id: reference_sequence
+  doc: This is the Homo sapiens assembly as a fasta file
   inputBinding:
     prefix: --reference_sequence
   label: Reference Fasta File
-  type:
-  - File
-  - 'null'
-- doc: The assembly reference index (Homo sapiens assembly as a fasta file fai file)
-  id: reference_sequence_fai
+  type: File
+- id: reference_sequence_fai
+  doc: The assembly reference index (Homo sapiens assembly as a fasta file fai file)
   inputBinding:
     prefix: --reference_fai
   label: Reference Index (fai) file
-  type:
-  - File
-  - 'null'
-- doc: This is the file containing the intervals to be pulled from the cram
-  id: interval_list
+  type: File
+- id: interval_list
+  doc: This is the file containing the intervals to be pulled from the cram
   inputBinding:
     prefix: --interval_list
   label: Intervals
-  type:
-  - File
-  - 'null'
+  type: File
 - id: outdir
   inputBinding:
     prefix: --outdir
   label: string name for all output
-  type:
-  - String
-  - 'null'
+  type: string
+  
 - id: input
   inputBinding:
     prefix: --input
   label: Cram input file
-  type:
-  - File
-  - 'null'
-- id: tracedir
-  inputBinding:
-    prefix: --tracedir
-  label: Directory to keep pipeline Nextflow logs and reports.
-  sbg:toolDefaultValue: $(inputs.outdir)/pipeline_info
-  type:
-  - Directory
-  - 'null'
+  type: File
+-   id: tracedir
+    inputBinding:
+        prefix: --tracedir
+    label: String naming directory to keep pipeline Nextflow logs and reports.
+    sbg:toolDefaultValue: ${params.outdir}/pipeline_info
+    type:
+    - string
+    - 'null'
+-   doc: List of files not added as explicit workflow inputs but required for workflow
+        execution.
+    id: auxiliary_files
+    label: Auxiliary files
+    type: File[]?
 outputs:
 -   id: output_directory
     outputBinding:
