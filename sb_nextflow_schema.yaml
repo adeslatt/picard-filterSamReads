@@ -133,8 +133,7 @@ inputs:
   inputBinding:
     prefix: --outdir
   label: string name for all output
-  type: string
-  
+  type: string  
 - id: input
   inputBinding:
     prefix: --input
@@ -144,7 +143,6 @@ inputs:
     inputBinding:
         prefix: --tracedir
     label: String naming directory to keep pipeline Nextflow logs and reports.
-    sbg:toolDefaultValue: ${params.outdir}/pipeline_info
     type: string
 outputs:
 -   id: output_directory
