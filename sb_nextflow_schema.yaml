@@ -144,20 +144,18 @@ inputs:
     inputBinding:
         prefix: --tracedir
     label: String naming directory to keep pipeline Nextflow logs and reports.
-    sbg:toolDefaultValue: ${params.outdir}/pipeline_info
-    type:
-    - string
-    - 'null'
--   doc: List of files not added as explicit workflow inputs but required for workflow
-        execution.
-    id: auxiliary_files
-    label: Auxiliary files
-    type: File[]?
+    sbg:toolDefaultValue: pipeline_info
+    type: string
 outputs:
 -   id: output_directory
     outputBinding:
         glob: $(inputs.outdir)
     type: Directory
+-   id: output_pipeline_directory
+    outputBinding:
+        glob: $(inputs.outdir)/pipeline_info
+    type: Directory
+   
         
 requirements:
 - class: InlineJavascriptRequirement
