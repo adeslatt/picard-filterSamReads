@@ -204,7 +204,7 @@ The name in between the `[]` is your username on the platform.
 pip install sbpack
 ```
 
-5. Now use the [sbpack_nf](https://docs.cavatica.org/v1.0/docs/bring-nextflow-apps-to-cavatica#section-optimizing-the-converted-app-for-execution-in-seven-bridges-environments) command.  See the link gives all the details for the options.
+5. Now use the [sbpack_nf](https://docs.cavatica.org/reference/bring-nextflow-apps-to-cavatica#sbpack_nf-command-reference) command.  See the link gives all the details for the options.
 
 ```bash
 sbpack_nf --profile deslattesmaysa2 --appid matthew.galbraith/picard-test/picard-filtercramfile-nf --workflow-path /Users/deslattesmaysa2/clean/picard-filterSamReads --entrypoint main.nf --dump-sb-app
