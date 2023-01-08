@@ -157,7 +157,9 @@ Command when executed on my macbook pro ran very quickly with the limited data f
 
 ## Execution Trace
 
-[Nextflow](https://www.nextflow.io) has nice features for creating execution report with timeline and resource details - these may be found in the [execution trace directory](https://github.com/adeslatt/picard-filterSamReads/blob/main/execution_trace/)
+[Nextflow](https://www.nextflow.io) has nice features for creating execution report with timeline and resource details.  
+
+These may be found in the [execution trace directory](https://github.com/adeslatt/picard-filterSamReads/blob/main/execution_trace/)
 
 | Nextflow Execution Artefacts   |  Test Output    |
 | ------------- | --------------------------------------------------------------------------- |
@@ -171,7 +173,7 @@ To view the details, you can download the html files to your own computer and vi
 
 Phil Ewels continues to produce so many wonderful tools, including [Multiqc](https://multiqc.info)
 
-The output of the running of fastqc and multiqc on the test files may be found in the [test output directory]([execution trace directory](https://github.com/adeslatt/picard-filterSamReads/blob/main/test_output/)
+The output of the running of fastqc and multiqc on the test files may be found in the [test output directory](https://github.com/adeslatt/picard-filterSamReads/blob/main/test_output/)
 
 | Multiqc & Fastqc Execution Artefacts   |  Test Output    |
 | ------------- | --------------------------------------------------------------------------- |
