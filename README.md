@@ -154,20 +154,41 @@ Command when executed on my macbook pro ran very quickly with the limited data f
 
 ## Execution Trace
 
-[Nextflow](https://www.nextflow.io) has nice features for creating execution traces - these may be found here:
+[Nextflow](https://www.nextflow.io) has nice features for creating execution report with timeline and resource details - these may be found in the [execution trace directory](https://github.com/adeslatt/picard-filterSamReads/blob/main/execution_trace/)
 
-* [execution report](https://github.com/adeslatt/picard-filterSamReads/blob/main/execution_trace/execution_report.html)
-* [execution timeline](https://github.com/adeslatt/picard-filterSamReads/blob/main/execution_trace/execution_timeline.html)
+The Nextflow report looks like this:
 
-## Multiqc and Fastqc reports
+<p>
+<img src=https://github.com/adeslatt/picard-filterSamReads/blob/main/assets/NextflowWorkflowReport.png width = 300 align=right>
+</p>
+
+The Nextflow Tasks Details looks like:
+
+<p>
+<img src=https://github.com/adeslatt/picard-filterSamReads/blob/main/assets/NextflowWorkflowTasksDetail.png width=300 align=right>
+</p>
+
+The Nextflow Resource Usage report looks like:
+
+<p>
+<img src=https://github.com/adeslatt/picard-filterSamReads/blob/main/assets/NextflowReportResourceUsage.png width=300 align-right>
+</p>
+
+To view the details, you can download the html files to your own computer and view within your browser (Chrome preferred)
+
+## Multiqc and Fastqc results
 
 Phil Ewels continues to produce so many wonderful tools, including [Multiqc](https://multiqc.info)
 
-* [multiqc report](https://github.com/adeslatt/picard-filterSamReads/blob/main/multiqc_report.html)
-* [R1_fastqc report](test.chr22.Aligned.sortedByCoord.out.filtered_R1_fastqc.html)
-* [R2_fastqc report](test.chr22.Aligned.sortedByCoord.out.filtered_R2_fastqc.html)
+The output of the running of fastqc and multiqc on the test files may be found in the [test output directory]([execution trace directory](https://github.com/adeslatt/picard-filterSamReads/blob/main/test_output/)
 
+The Multiqc report looks like:
 
+<p>
+<img src=https://github.com/adeslatt/picard-filterSamReads/blob/main/assets/MultiQCPictureFatQc.png width=300 align=right>
+</p>
+
+To view the complete details, download the html files to your own computer and view within your browser (Chrome preferred)
 
 ## Uploading Nextflow Workflow onto Cavatica
 
