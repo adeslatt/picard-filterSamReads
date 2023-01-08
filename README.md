@@ -101,13 +101,16 @@ Using the nextflow documentation faq for [How do I process multiple input files 
 
 Using the steps outlined by our colleague '*Nick*'
 
-::Pseudo code::
-1. a. samtools view to convert cram to sam with header file
-   b. samtools view to start the new output file with header only
-   c. samtools view to filter based upon a provided filter string (see script below - narrow to chromosome, gene of interest)
-2. picard SamToFastq to extract the paired reads overlapping the newly extracted region and produced the R1_fastq and R2_fastq files
-3. fastqc - performs quality control analysis on the fastq files extracted using a container built from [fastqc-docker](https://github.com/adeslatt/fastqc-docker)
-4. multiqc - creates a final quality control report using the output from fastqc using a container built from [multiqc-docker](https://github.com/adeslatt/multiqc-docker)
+<ins>Pseudo code</ins>
+1. a. samtools view to convert cram to sam with header file. 
+
+   b. samtools view to start the new output file with header only. 
+   
+   c. samtools view to filter based upon a provided filter string (see script below - narrow to chromosome, gene of interest). 
+   
+2. picard SamToFastq to extract the paired reads overlapping the newly extracted region and produced the R1_fastq and R2_fastq files. 
+3. fastqc - performs quality control analysis on the fastq files extracted using a container built from [fastqc-docker](https://github.com/adeslatt/fastqc-docker). 
+4. multiqc - creates a final quality control report using the output from fastqc using a container built from [multiqc-docker](https://github.com/adeslatt/multiqc-docker). 
 
 ## executing
 
@@ -156,23 +159,11 @@ Command when executed on my macbook pro ran very quickly with the limited data f
 
 [Nextflow](https://www.nextflow.io) has nice features for creating execution report with timeline and resource details - these may be found in the [execution trace directory](https://github.com/adeslatt/picard-filterSamReads/blob/main/execution_trace/)
 
-The Nextflow report looks like this:
-
-<p>
-<img src=https://github.com/adeslatt/picard-filterSamReads/blob/main/assets/NextflowWorkflowReport.png width = 300 align=right>
-</p>
-
-The Nextflow Tasks Details looks like:
-
-<p>
-<img src=https://github.com/adeslatt/picard-filterSamReads/blob/main/assets/NextflowWorkflowTasksDetail.png width=300 align=right>
-</p>
-
-The Nextflow Resource Usage report looks like:
-
-<p>
-<img src=https://github.com/adeslatt/picard-filterSamReads/blob/main/assets/NextflowReportResourceUsage.png width=300 align-right>
-</p>
+| Nextflow Execution Artefacts   |  Test Output    |
+| ------------- | --------------------------------------------------------------------------- |
+| [The Nextflow execution report](https://www.nextflow.io/docs/latest/tracing.html#execution-report)| <img src="https://github.com/adeslatt/picard-filterSamReads/blob/main/assets/NextflowWorkflowReport.png" width="600" align="right"> |
+| [The Nextflow Tasks Details](https://www.nextflow.io/docs/latest/tracing.html#tasks) | <img src="https://github.com/adeslatt/picard-filterSamReads/blob/main/assets/NextflowWorkflowTasksDetail.png" width="600" align="right"> |
+| [The Nextflow Resource Usage](https://www.nextflow.io/docs/latest/tracing.html#resource-usage) | <img src="https://github.com/adeslatt/picard-filterSamReads/blob/main/assets/NextflowReportResourceUsage.png" width="600" align="right"> |
 
 To view the details, you can download the html files to your own computer and view within your browser (Chrome preferred)
 
@@ -182,11 +173,10 @@ Phil Ewels continues to produce so many wonderful tools, including [Multiqc](htt
 
 The output of the running of fastqc and multiqc on the test files may be found in the [test output directory]([execution trace directory](https://github.com/adeslatt/picard-filterSamReads/blob/main/test_output/)
 
-The Multiqc report looks like:
-
-<p>
-<img src=https://github.com/adeslatt/picard-filterSamReads/blob/main/assets/MultiQCPictureFatQc.png width=300 align=right>
-</p>
+| Multiqc & Fastqc Execution Artefacts   |  Test Output    |
+| ------------- | --------------------------------------------------------------------------- |
+| [The Multiqc](https://multiqc.info/)| <img src="https://github.com/adeslatt/picard-filterSamReads/blob/main/assets/MultiQCPicture.png" width="600" align="right"> |
+| [The Fastqc details](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/)| <img src="https://github.com/adeslatt/picard-filterSamReads/blob/main/assets/FastQCPicture.png" width="600" align="right">|
 
 To view the complete details, download the html files to your own computer and view within your browser (Chrome preferred)
 
