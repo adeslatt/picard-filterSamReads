@@ -1,0 +1,2 @@
+Sample	FastQC_percent_duplicates	FastQC_percent_gc	FastQC_avg_sequence_length	FastQC_total_sequences	FastQC_percent_fails
+test.chr22	0.0	43.0	250.0	238.0	18.1818181818

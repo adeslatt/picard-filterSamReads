@@ -9,6 +9,7 @@ def helpMessage() {
     Inputs Options:
     --input               Input cram
     --max_records_in_ram  For picard tools to specify the maximum records in ram (default is 500000).
+    --filter_string       String to use to filter region from cram (e.g. "grep -e chr6 -e HLA -e "*"")
     --outdir              The directory for the filtered cram (default is CRAMS_filtered).
     --outputfile          test place holder - shouldn't be necessary
     --reference_fasta     The assembly reference (Homo sapiens assembly as a fasta file.
@@ -17,6 +18,8 @@ def helpMessage() {
 }
 
 params.help = ""
+params.max_records_in_ram = 500000
+params.filter_string = "grep -e chr6 -e HLA -e \"*\""
 
 // Show help message
 if (params.help) {
@@ -27,7 +30,13 @@ if (params.help) {
 
 ch_cram_dataset      = Channel.fromPath(file(params.input))
 
+ch_cram_dataset.into {
+  ch_cram_for_names
+  ch_cram_for_samtools
+}
 ch_reference_fasta   = Channel.fromPath(file(params.reference_fasta))
+
+val_filter_string    = Channel.value(params.filter_string)
 
 ch_reference_fasta.into {
   ch_reference_fasta_samtoolsViewToSamWithHeader
@@ -63,20 +72,28 @@ process samtoolsViewToSamWithHeader {
     container  'pgc-images.sbgenomics.com/deslattesmaysa2/samtools:v1.16.1'
 
     input:
-    file (cram)            from ch_cram_dataset
+    file (cram)            from ch_cram_for_samtools
     file (reference_fasta) from ch_reference_fasta_samtoolsViewToSamWithHeader 
-
+    val (filter_string)    from val_filter_string
+    
     output:
-    file "*.sam" into ch_filtered_sam_with_header
+    file "${cram.baseName}.filtered.sam" into ch_filtered_sam_with_header
     
 
     script:
     """
-    samtools view -T ${reference_fasta} -h -o ${cram.basename}.sam ${cram}
-    samtools view -H ${cram.basename}.sam > ${cram.basename}_filter.sam
-    samtools view ${cram.basename}.sam | grep -e chr6 -e HLA -e "*" >> ${cram.basename}_filter.sam
+    samtools view -T ${reference_fasta} -h -o ${cram.baseName}.sam ${cram}
+    samtools view -H ${cram.baseName}.sam  > ${cram.baseName}.filtered.sam
+    samtools view ${cram.baseName}.sam | ${filter_string}  >> ${cram.baseName}.filtered.sam
     """
 }
+
+
+ch_filtered_sam_with_header.into {
+  ch_filtered_sam_for_picardSamToFastq
+  ch_filtered_sam_for_printing
+}
+
 
 // ------------------------------------------------------------
 // picardSamToFastq
@@ -89,21 +106,37 @@ process samtoolsViewToSamWithHeader {
 // ------------------------------------------------------------
 process picardSamToFastq {
 
-    tag "picardSamToFastq"
-    publishDir "${params.outdir}", mode: 'copy'
-    container  'pgc-images.sbgenomics.com/deslattesmaysa2/picard:v1.0'
-
+    tag           'picardSamToFastq'
+    errorStrategy 'ignore'
+    publishDir    "${params.outdir}", mode: 'copy'
+    container     'pgc-images.sbgenomics.com/deslattesmaysa2/picard:v1.0'
+    
     input:
-    file (filtered)           from ch_filtered_sam_with_header
-
+    file (sam)   from ch_filtered_sam_for_picardSamToFastq
+        
     output:
-    file "*.fastq" into ch_filtered_fastq
+    file "${sam.baseName}_R1.fastq" into ch_sam_R1_fastq
+    file "${sam.baseName}_R2.fastq" into ch_sam_R2_fastq
 
     script:
     """
-    picard SamToFastq -I ${filtered} -F ${filtered.basename}_R1.fastq F2=${filtered.basename}_R2.fastq
+    picard SamToFastq -I ${sam} -F ${sam.baseName}_R1.fastq -F2 ${sam.baseName}_R2.fastq
     """
 }
+
+ch_sam_R1_fastq.into {
+  ch_sam_R1_fastq_for_printing
+  ch_sam_R1_fastq_for_fastqc
+}
+
+ch_sam_R2_fastq.into {
+  ch_sam_R2_fastq_for_printing
+  ch_sam_R2_fastq_for_fastqc
+}
+
+ch_filtered_sam_for_printing.view()
+ch_sam_R1_fastq_for_printing.view()
+ch_sam_R2_fastq_for_printing.view()
 
 // ------------------------------------------------------------
 // fastqc
@@ -115,18 +148,20 @@ process picardSamToFastq {
 // ------------------------------------------------------------
 process fastqc {
     tag "fastqc"
-    publishDir "results", mode: 'copy'
+    publishDir "${params.outdir}", mode: 'copy'
     container 'pgc-images.sbgenomics.com/deslattesmaysa2/fastqc:v1.0'
 
     input:
-    set val(name), file(reads) from ch_filtered_fastq
+    file(read1) from ch_sam_R1_fastq_for_fastqc
+    file(read2) from ch_sam_R2_fastq_for_fastqc
 
     output:
     file "*_fastqc.{zip,html}" into ch_fastqc_results
 
     script:
     """
-    fastqc $reads
+    fastqc $read1
+    fastqc $read2
     """
 }
 
@@ -141,7 +176,7 @@ process fastqc {
 process multiqc {
     tag "multiqc"
 
-    publishDir "results", mode: 'copy'
+    publishDir "${params.outdir}", mode: 'copy'
     container 'pgc-images.sbgenomics.com/deslattesmaysa2/multiqc:v1.0'
 
     input:

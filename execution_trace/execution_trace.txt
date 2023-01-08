@@ -1,0 +1,16 @@
+process	tag	name	status	exit	script
+samtoolsViewToSamWithHeader	samtoolsViewToSamWithHeader	samtoolsViewToSamWithHeader (samtoolsViewToSamWithHeader)	COMPLETED	0	
+    samtools view -T GRCh38.primary_assembly.genome.chr22.fa -h -o test.chr22.Aligned.sortedByCoord.out.sam test.chr22.Aligned.sortedByCoord.out.cram
+    samtools view -H test.chr22.Aligned.sortedByCoord.out.sam  > test.chr22.Aligned.sortedByCoord.out.filtered.sam
+    samtools view test.chr22.Aligned.sortedByCoord.out.sam | grep -e chr22 -e USP18  >> test.chr22.Aligned.sortedByCoord.out.filtered.sam
+    
+picardSamToFastq	picardSamToFastq	picardSamToFastq (picardSamToFastq)	COMPLETED	0	
+    picard SamToFastq -I test.chr22.Aligned.sortedByCoord.out.filtered.sam -F test.chr22.Aligned.sortedByCoord.out.filtered_R1.fastq -F2 test.chr22.Aligned.sortedByCoord.out.filtered_R2.fastq
+    
+fastqc	fastqc	fastqc (fastqc)	COMPLETED	0	
+    fastqc test.chr22.Aligned.sortedByCoord.out.filtered_R1.fastq
+    fastqc test.chr22.Aligned.sortedByCoord.out.filtered_R2.fastq
+    
+multiqc	multiqc	multiqc (multiqc)	COMPLETED	0	
+    multiqc . -m fastqc
+    

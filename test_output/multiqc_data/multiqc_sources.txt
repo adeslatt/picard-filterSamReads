@@ -1,0 +1,2 @@
+Module	Section	Sample Name	Source
+FastQC	all_sections	test.chr22	/Users/deslattesmaysa2/projects/picard-filterSamReads/work/52/457ec25577538df4394d0500b54679/fastqc/test.chr22.Aligned.sortedByCoord.out.filtered_R2_fastqc.zip
