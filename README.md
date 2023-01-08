@@ -198,7 +198,7 @@ The steps are as follows:
 
 1. Create your workflow and put it into GitHub
 
-2. Create a credentials file placed here `~/.sevenbridges/cavatica`.  The content looks like this:
+2. Create a credentials file placed here `~/.sevenbridges/credentials`.  The content looks like this:
 
 ```bash
 [deslattesmaysa2]
