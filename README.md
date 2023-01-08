@@ -213,16 +213,14 @@ The name in between the `[]` is your username on the platform.
 4. Install the sbpack_nf routine.  This is done with pip
 
 ```bash
-pip install sbpack
+pip3 install sbpack
 ```
 
 5. Now use the [sbpack_nf](https://docs.cavatica.org/reference/bring-nextflow-apps-to-cavatica#sbpack_nf-command-reference) command.  See the link gives all the details for the options.
 
 ```bash
-sbpack_nf --profile deslattesmaysa2 --appid matthew.galbraith/picard-test/picard-filtercramfile-nf --workflow-path /Users/deslattesmaysa2/clean/picard-filterSamReads --entrypoint main.nf --dump-sb-app
+sbpack_nf --profile deslattesmaysa2 --appid matthew.galbraith/kf-htp-cram-hla-extractions/picard-filterSamReads-nf --sb-doc /Users/deslattesmaysa2/projects/picard-filterSamReads/README.md --entrypoint main.nf --workflow-path /Users/deslattesmaysa2/projects/picard-filterSamReads
 ```
-
-The `--dump-sb-app` outputs two additional files (`sb_nextflow_schema.yaml` and `sb_nextflow_schema.json`)
 
 6. Edit the `sb_nextflow_schema.yaml` to accept the input files using the details as outlined in the [Cavatica Nextflow help pages](https://docs.cavatica.org/v1.0/docs/bring-nextflow-apps-to-cavatica#section-optimizing-the-converted-app-for-execution-in-seven-bridges-environments)
 
