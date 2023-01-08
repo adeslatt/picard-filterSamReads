@@ -97,10 +97,15 @@ We made two containers, now we have stitched those together as two processes.   
 
 Using the nextflow documentation faq for [How do I process multiple input files in parallel?](https://www.nextflow.io/docs/latest/faq.html#how-do-i-process-multiple-input-files-in-parallel)
 
-Four processes
+'*updated Jan 8 2022*'
 
-1. picardFilterSamReads - uses an interval file to filter paired reads from a cram file using container built from [picard-docker](https://github.com/adeslatt/picard-docker)
-2. samtoolsCramToFastq - uses output from the picardFilterSamReads process to extract the reads as fastq files using a container built from [samtools-docker](https://github.com/adeslatt/samtools-docker)
+Using the steps outlined by our colleague '*Nick*'
+
+::Pseudo code::
+1. a. samtools view to convert cram to sam with header file
+   b. samtools view to start the new output file with header only
+   c. samtools view to filter based upon a provided filter string (see script below - narrow to chromosome, gene of interest)
+2. picard SamToFastq to extract the paired reads overlapping the newly extracted region and produced the R1_fastq and R2_fastq files
 3. fastqc - performs quality control analysis on the fastq files extracted using a container built from [fastqc-docker](https://github.com/adeslatt/fastqc-docker)
 4. multiqc - creates a final quality control report using the output from fastqc using a container built from [multiqc-docker](https://github.com/adeslatt/multiqc-docker)
 
@@ -117,66 +122,52 @@ Usage:
 The typical command for running the pipeline is as follows:
 
 Inputs Options:
---input               Input directory for cram files.
---interval_list       File containing the intervals to be extracted from the cram
+--input               Input cram
 --max_records_in_ram  For picard tools to specify the maximum records in ram (default is 500000).
---outdir              The directory for the filtered cram (default is filtered_crams).
---reference_sequence  The assembly reference (Homo sapiens assembly as a fasta file.
---reference_fai       The assembly reference index (Homo sapiens assembly as a fai file.
+--filter_string       String to use to filter region from cram (e.g. "grep -e chr6 -e HLA -e "*"")
+--outdir              The directory for the filtered cram (default is CRAMS_filtered).
+--outputfile          test place holder - shouldn't be necessary
+--reference_fasta     The assembly reference (Homo sapiens assembly as a fasta file.
 --tracedir            Where the traces and DAG and reports are kept.
 ```
 
 
-To execute, all options are required:
+To execute the test file, the following command was run:  
+
+Note for the test, we used the filter string `*"grep -e chr22 -e USP18 -e \"*\""*'
 
 ```bash
 nextflow run main.nf \
---reference_sequence "data/Homo_sapiens_assembly38.fasta" \
---reference_fai      "data/Homo_sapiens_assembly38.fasta.fai" \
---input              "data/HTP0003A.cram" \
---outdir             "2022Apr25NextFlowRun" \
---tracedir           "pipeline_info" \
---interval_list      "data/test2.interval_list" 
+--input data/test.chr22.Aligned.sortedByCoord.out.cram \
+--filter_string "grep -e chr22 -e USP18 -e \"*\"" \
+--outdir "test_output" \
+--outputfile "test_outputfile" \
+--reference_fasta "data/GRCh38.primary_assembly.genome.chr22.fa" \
+--tracedir "execution_trace" \
+-with-trace \
+-with-report \
+-with-dag "execution_trace/test_output.png" \
+-with-timeline
 ```
 
-Command when executed on my macbook pro:
+Command when executed on my macbook pro ran very quickly with the limited data files and isolated to chr22 segment of the human genome.   GitHub actions can be set up to ensure that this nextflow script runs at all times regardless of changes.
 
-```bash
-(picard) nichdm02209715:picard-filterSamReads deslattesmaysa2$ nextflow run main.nf --help
-N E X T F L O W  ~  version 21.10.6
-Launching `main.nf` [modest_austin] - revision: 9d1ff459fd
+## Execution Trace
 
-Usage:
-The typical command for running the pipeline is as follows:
-nextflow run main.nf --bams sample.bam [Options]
+[Nextflow](https://www.nextflow.io) has nice features for creating execution traces - these may be found here:
 
-Inputs Options:
---input               Input directory for cram files.
---interval_list       File containing the intervals to be extracted from the cram
---max_records_in_ram  For picard tools to specify the maximum records in ram (default is 500000).
---outdir              The directory for the filtered cram (default is filtered_crams).
---outputfile          test place holder - shouldn't be necessary
---reference_sequence  The assembly reference (Homo sapiens assembly as a fasta file.
---reference_fai       The assembly reference index (Homo sapiens assembly as a fai file.
---tracedir            Where the traces and DAG and reports are kept.
+* [execution report](https://github.com/adeslatt/picard-filterSamReads/blob/main/execution_trace/execution_report.html)
+* [execution timeline](https://github.com/adeslatt/picard-filterSamReads/blob/main/execution_trace/execution_timeline.html)
 
-(picard) nichdm02209715:picard-filterSamReads deslattesmaysa2$ nextflow run main.nf \
-> --reference_sequence "data/Homo_sapiens_assembly38.fasta" \
-> --reference_fai      "data/Homo_sapiens_assembly38.fasta.fai" \
-> --input              "data/HTP0003A.cram" \
-> --outdir             "2022Apr25NextFlowRun" \
-> --tracedir           "pipeline_info" \
-> --interval_list      "data/test2.interval_list" 
-N E X T F L O W  ~  version 21.10.6
-Launching `main.nf` [compassionate_shirley] - revision: 9d1ff459fd
-WARN: The `into` operator should be used to connect two or more target channels -- consider to replace it with `.set { ch_interval_list_picardFilteredSamReads }`
-WARN: Access to undefined parameter `max_records_in_ram` -- Initialise it to a default value eg. `params.max_records_in_ram = some_value`
-executor >  local (1)
-[39/d8738b] process > picardFilterSamReads (picardFiltereSamReads) [  0%] 0 of 1
-[-        ] process > samtoolsCramToFastq                          -
-[-        ] process > fastqc                                       -
-[-        ] process > multiqc                                      -
-```
+## Multiqc and Fastqc reports
+
+Phil Ewels continues to produce so many wonderful tools, including [Multiqc](https://multiqc.info)
+
+* [multiqc report](https://github.com/adeslatt/picard-filterSamReads/blob/main/multiqc_report.html)
+* [R1_fastqc report](test.chr22.Aligned.sortedByCoord.out.filtered_R1_fastqc.html)
+* [R2_fastqc report](test.chr22.Aligned.sortedByCoord.out.filtered_R2_fastqc.html)
+
+
 
 ## Uploading Nextflow Workflow onto Cavatica
 
@@ -231,7 +222,7 @@ And then it is an application ready to be used on the cavatica platform.
 Generated when running Nextflow - here is the process graph
 
 <p>
-<img src="https://github.com/adeslatt/picard-filterSamReads/blob/main/assets/pipeline_dag.png" width="1000">
+<img src="https://github.com/adeslatt/picard-filterSamReads/blob/main/execution_trace/test_output.png" width="1000">
 </p>
 
 
