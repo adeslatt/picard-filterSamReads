@@ -1,6 +1,6 @@
 cwlVersion: v1.0
 class: CommandLineTool
-id: samtools_subset
+id: samtoolsViewToSamWithHeader
 doc: |-
   This tool does extracts a desired region from a cram file and saves it as a sam
   Programs run in this tool:
