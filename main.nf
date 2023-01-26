@@ -82,7 +82,7 @@ process samtoolsViewToSamWithHeader {
 
     script:
     """
-    samtools view -T ${reference_fasta} -h -o ${cram.baseName}.sam ${cram}
+    samtools view -f 0x2 -T ${reference_fasta} -h -o ${cram.baseName}.sam ${cram}
     samtools view -H ${cram.baseName}.sam  > ${cram.baseName}.filtered.sam
     samtools view ${cram.baseName}.sam | ${filter_string}  >> ${cram.baseName}.filtered.sam
     """
